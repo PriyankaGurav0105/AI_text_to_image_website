@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {assets} from '../assets/assets.js'
 import { useContext } from 'react';
 import { AppContext } from '../context/AppContext.jsx';
@@ -7,7 +7,7 @@ import { AppContext } from '../context/AppContext.jsx';
 
 const NavBar = () => {
 
-// const navigate = useNavigate();
+const navigate = useNavigate();
 const {user, setShowLogin}= useContext(AppContext);
 
   return (
@@ -19,10 +19,10 @@ const {user, setShowLogin}= useContext(AppContext);
         {
         user ?
         <div className='flex items-center gap-2 sm:gap-3'>
-            {/* <button onClick={()=>navigate('/buy')} className=' flex items-center gap-2 bg-blue-200 px-4 sm:px-6 py-1.5 sm:py-3 rounded-full hover:scale-105 transition-all duration-700'>
+            <button onClick={()=>navigate('/buy')} className=' flex items-center gap-2 bg-blue-200 px-4 sm:px-6 py-1.5 sm:py-3 rounded-full hover:scale-105 transition-all duration-700'>
                 <img src={assets.credit_star} className='w-5'/>
                 <p className='text-xs sm:text-sm font-medium text-gray-600 '>Credits left : 50</p>
-            </button> */}
+            </button>
             <p className='text-gray-600 max-sm:hidden pl-4'>Hi, Priyanka Gurav</p>
             <div className='relative group'>
                 <img src={assets.profile_icon} className='w-10 drop-shadow'/>
@@ -34,7 +34,7 @@ const {user, setShowLogin}= useContext(AppContext);
         </div>  
         :
         <div className='flex items-center gap-2 sm:gap-5'>
-            {/* <p onClick={()=>navigate('/buy')} className='cursor-pointer'>Pricing</p> */}
+            <p onClick={()=>navigate('/buy')} className='cursor-pointer'>Pricing</p>
             <button onClick={()=>setShowLogin(true)} className='bg-zinc-800 text-white px-7 py-2 sm:px-10 text-sm rounded-full'>Login</button>
         </div> 
     }
