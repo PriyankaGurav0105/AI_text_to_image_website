@@ -41,7 +41,7 @@ const loginUser = async (req, res)=>{
             res.json({success: true, token, user: {name: user.name}})
            
         }else{
-            return res({success: false , message: 'Invalid credentials'})
+            return res.json({success: false , message: 'Invalid credentials'})
         }
     } catch (error) {
         console.log(error)
@@ -49,4 +49,6 @@ const loginUser = async (req, res)=>{
         
     }
 }
+
+export{registerUser, loginUser}
 
