@@ -1,6 +1,7 @@
 import userModel from "../models/userModels.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import razorpay from 'razorpay'
 
 const registerUser = async (req, res)=>{
     try{
@@ -60,6 +61,58 @@ const userCredits = async(req, res)=>{
         console.log(error)
         res.json({success: false, message: error.message})
     }
+}
+
+const razorpayInstance = new razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+
+});
+const paymentRazorpay = async (req, res)=>{
+try {
+    const {planId, userId} = req.body
+    const userData = await userModel.findById(userId)
+    if(!userId || !planId){
+        
+        return res.json({success: false, message:'Missing Details'})
+
+    }
+        let credits, plan, amount, date
+
+        switch (planId) {
+            case 'Basic':
+                plan = 'Basic'
+                credits = 5
+                amount = 10                
+                break;
+
+                case 'Advanced':
+                plan = 'Advanced'
+                credits = 25
+                amount = 50               
+                break;
+
+                case 'Business':
+                plan = 'Business'
+                credits = 100
+                amount = 500                
+                break;
+        
+            default:
+                return res.json({success: false, message:'Plan not found'});
+        }
+
+        date = Date.now();
+
+        const transactionData = {
+            userId, plan, amount, credits, credits, date
+        }
+        
+    
+} catch (error) {
+    console.log(error)
+        res.json({success: false, message: error.message})
+}
 }
 
 export{registerUser, loginUser, userCredits}
