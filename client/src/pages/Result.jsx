@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { assets } from "../assets/assets"
+import { AppContext } from "../context/AppContext";
 
 const Result = () => {
 
@@ -7,11 +8,21 @@ const [image, setImage] = useState(assets.sample_img_1);
 const [isImageLoaded, setIsImageLoaded] = useState(false)
 const [loading, setLoading] = useState(false);
 const [input, setInput] = useState('')
+const {generateImage} = useContext(AppContext);
 
-const onSubmitHandler = async (e) =>{
+const onSubmitHandler = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-
-}
+  if (input) {
+      const generatedImage = await generateImage(input); // Call the API to generate the image.
+      if (generatedImage) {
+          setImage(generatedImage); // Update state with the new image URL.
+          setIsImageLoaded(true); // Mark the image as loaded.
+      }
+  }
+  setLoading(false); // Stop loading spinner.
+};
 
   return (
     <form onSubmit={onSubmitHandler} className="flex flex-col min-h-[90vh] justify-center items-center">
