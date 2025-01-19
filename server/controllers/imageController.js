@@ -10,6 +10,9 @@ export const generateImage = async (req, res) =>{
         if(!user || !prompt) {
             return res.json({ success: false, message: 'Missing Details'})
         }
+        if(user.creditBalance === 0 || userModel.creditBalance < 0){
+            return res.json({ success: false, message: 'Insufficient Credit Balance', creditBalance: user.creditBalance})
+        }
         const formData = new FormData()
         formData.append('prompt', prompt)
 
@@ -22,7 +25,8 @@ export const generateImage = async (req, res) =>{
 
         const base64Image = Buffer.from(data, 'binary').toString('base64')
         const resultImage = `data:image/png;base64,${base64Image}`
-        return res.json({success: true, message:"Image Generated" , image:resultImage})
+        await userModel.findByIdAndUpdate(user._id, {creditBalance:user.creditBalance - 1})
+         res.json({success: true, message:"Image Generated" ,creditBalance:user.creditBalance - 1 , image:resultImage})
         
     } catch (error) {
        console.log(error.message);
