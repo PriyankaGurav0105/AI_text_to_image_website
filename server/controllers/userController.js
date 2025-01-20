@@ -2,6 +2,7 @@ import userModel from "../models/userModels.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import razorpay from 'razorpay'
+import transactionModel from "../models/transactionModel.js";
 
 const registerUser = async (req, res)=>{
     try{
@@ -107,6 +108,20 @@ try {
         const transactionData = {
             userId, plan, amount, credits, credits, date
         }
+
+        const newTransaction = await transactionModel.create(transactionData)
+        const options = {
+            amount: amount * 100, // INR
+            currency: process.env.CURRENCY,
+            receipt: newTransaction._id,
+        }
+        await razorpayInstance.orders.create(options, (error, order)=>{
+            if(error){
+                console.log(error);
+                return res.json({success: false, message:error})
+            }
+            res.json({success: true, message: 'Payment Successfull', order: order})
+        })
         
     
 } catch (error) {
@@ -115,5 +130,33 @@ try {
 }
 }
 
-export{registerUser, loginUser, userCredits}
+const verifyRazorpay = async(req, res)=>{
+    try {
+        const {  razorpay_order_id } = req.body
+        const OrderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
+        if(OrderInfo.status == 'paid'){
+            const transactionData = await transactionModel.findById(OrderInfo.receipt)
+            if(transactionData.payment){
+                return res.json({success: false, message: 'Payment Failed'})
+        }
+        const userData = await userModel.findById(transactionData.userId)
+
+        const creditBalance = userData.creditBalance + transactionData.credits
+        await userModel.findByIdAndUpdate(userData._id, {creditBalance})
+
+        await transactionModel.findByIdAndUpdate(transactionData._id, {payment: true})
+
+        res.json({success: true, message: 'Credits Added'})
+    }else{
+        res.json({success: false, message: 'Payment Failed'})
+
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.json({success: false, message: error.message});
+    }
+}
+
+export{registerUser, loginUser, userCredits, paymentRazorpay, verifyRazorpay}
 
